@@ -1,27 +1,45 @@
 package main
 
 import (
-	"net/http"
+	//"net/http"
 	"github.com/labstack/echo"
 )
 
+
+type CustomContext struct {
+	echo.Context
+}
+
+func (c *CustomContext) Foo() {
+	
+}
+
+func (c *CustomContext) Bar() {	
+	
+}
+
 func main() {
-	// nameVar := "user"
-	// passVar := "passs"
-	//dataVar := "test"
-
 	e := echo.New()
+	
 
-	//e.GET("/", getRoot)
-	e.GET("/get", func(c echo.Context, dataVar string) error{
-		return dataVar
+	e.Use(func(h echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			cc := &CustomContext{c}
+			return h(cc)
+		}
 	})
 
+	e.GET("/", func(c echo.Context) error {
+		cc := c.(*CustomContext)
+		//cc.Foo()
+		cc.Bar()
+		return cc.String(200, "")
+	})
 
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
 
-func getRoot(c echo.Context, s string) error {
-	return c.String(http.StatusOK, "Hello, World!")
-}
+// func getRoot(c echo.Context) error {
+// 	return c.String(http.StatusOK, "Hello, World!")
+// }
