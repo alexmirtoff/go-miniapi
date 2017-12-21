@@ -10,17 +10,12 @@ type CustomContext struct {
 	echo.Context
 }
 
-func (c *CustomContext) Foo() {
-	
-}
-
 func (c *CustomContext) Bar() {	
-	
+	//bar := "brr"
 }
 
 func main() {
 	e := echo.New()
-	
 
 	e.Use(func(h echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -31,9 +26,8 @@ func main() {
 
 	e.GET("/", func(c echo.Context) error {
 		cc := c.(*CustomContext)
-		//cc.Foo()
-		cc.Bar()
-		return cc.String(200, "")
+		
+		return cc.String(200, "l")
 	})
 
 
