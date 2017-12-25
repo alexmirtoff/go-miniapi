@@ -3,10 +3,10 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	//"reflect" 
-	"strconv"
+	//"reflect"
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
+	"strconv"
 )
 
 type users struct {
@@ -18,9 +18,10 @@ type users struct {
 }
 
 type posts struct {
-	id    int
-	title string
-	body  string
+	id     int
+	userid int
+	title  string
+	body   string
 }
 
 func main() {
@@ -46,10 +47,18 @@ func main() {
 
 	// drop user
 	r.GET("/dropuser", func(c *gin.Context) {
-		dropIds := c.Query("id")
-		dropIdi, _ := strconv.Atoi(dropIds)
+		dropIdi, _ := strconv.Atoi(c.Query("id"))
 		dropUser(dropIdi)
-		
+
+	})
+
+	// create post
+	r.GET("/createpost", func(c *gin.Context) {
+		post := new(posts)
+		post.userid, _ = strconv.Atoi(c.Query("userid"))
+		post.title = c.Query("title")
+		post.body = c.Query("body")
+		createPost(post.userid, post.title, post.body)
 	})
 
 	// run server
@@ -110,6 +119,19 @@ func dropUser(id int) {
 	affect, err := res.RowsAffected()
 	checkErr(err)
 	fmt.Println("User dropped: ", affect)
+	db.Close()
+}
+
+// CREATE NEW POST
+func createPost(userid int, title, body string) {
+	db := initDb()
+	ex, err := db.Prepare("INSERT INTO POSTS(userid, title, body) values(?, ?, ?)")
+	checkErr(err)
+	res, err := ex.Exec(userid, title, body)
+	checkErr(err)
+	id, err := res.LastInsertId()
+	checkErr(err)
+	fmt.Println(id)
 	db.Close()
 }
 
